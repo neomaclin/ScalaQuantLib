@@ -1,0 +1,6 @@
+[submodule "quantlib-numeric"]
+	path = quantlib-numeric
+	url = https://neomaclin@github.com/neomaclin/quantlib-numeric.git
+[submodule "quantlib-temporal"]
+	path = quantlib-temporal
+	url = https://neomaclin@github.com/neomaclin/quantlib-temporal.git
