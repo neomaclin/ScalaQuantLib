@@ -14,11 +14,11 @@ The current layout of the project is separated into sub projects with
 ### quantlib-numeric
 > Provide basic calculation functions and mathematical models such as distributions, capulars, integrals and other related. 
 
-### quantlib-finanacial:
+### quantlib-financial:
 > Provide basic financial instrument abstraction, such as Stock, Bond, Swap and other derivatives.
 
-### quantlib-quantative:
-> Provide the actual quantitive analytical tooling such as pricing model/engine and related.
+### quantlib-quantitative:
+> Provide the actual quantitative analytical tooling such as pricing model/engine and related.
 
 ### quantlib-http:
 > Using akka-http as the http toolkit to provide user interaction
