@@ -15,4 +15,5 @@ object Compounding {
 
   case object SimpleThenCompounded extends Compounding
 
+  case object CompoundedThenSimple extends Compounding
 }

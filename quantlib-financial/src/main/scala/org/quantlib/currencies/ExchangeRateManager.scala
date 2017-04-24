@@ -1,9 +1,9 @@
 package org.quantlib.currencies
 
 
-import java.time.{Year}
+import java.time._
 
-import org.quantlib.currencies.ExchangeType._
+
 import org.quantlib.time.implicits.DateOps
 import org.quantlib.time.implicits.DateOps._
 
@@ -16,7 +16,7 @@ final case class Entry[D : DateOps](rate: ExchangeRate, start: D, end: D){
 
 final case class Key(c1: Currency, c2: Currency)
 
-final case class ExchangeRateManager[D: DateOps](entries: TrieMap[Key, Entry[D]]) {
+final case class ExchangeRateManager[D: DateOps](entries: TrieMap[Key, Entry[D]]){
 
   def add(entry: Entry[D]): ExchangeRateManager[D] = {
 
@@ -43,11 +43,11 @@ final case class ExchangeRateManager[D: DateOps](entries: TrieMap[Key, Entry[D]]
 
   }
 
-  def lookup(source: Currency, target: Currency, date: D, exchangeType: ExchangeType): Option[ExchangeRate] = {
+  def lookup(source: Currency, target: Currency, date: D, exchangeType: ExchangeRate.Type): Option[ExchangeRate] = {
     if (source == target) Some(ExchangeRate(source, target, 1.0))
     else exchangeType match {
-      case Direct => directLookup(source, target, date)
-      case Derived(_, _) =>
+      case ExchangeRate.Type.Direct => directLookup(source, target, date)
+      case ExchangeRate.Type.Derived(_, _) =>
         (source.triangulationCurrency, target.triangulationCurrency) match {
           case (Some(link), None) =>
             if (link == target) {
@@ -88,6 +88,7 @@ object ExchangeRateManager {
   val defaultExchangeRateManager = ExchangeRateManager(knownRates)
   import java.time.Month._
   import org.quantlib.currencies.Europe._
+
   private val knownRates = TrieMap(
     Key(EUR, ATS) -> Entry(ExchangeRate(EUR, ATS, 13.7603), DateOps.from(1, JANUARY, Year.of(1999)), DateOps.MAX),
     Key(EUR, BEF) -> Entry(ExchangeRate(EUR, BEF, 40.3399), DateOps.from(1, JANUARY, Year.of(1999)), DateOps.MAX),

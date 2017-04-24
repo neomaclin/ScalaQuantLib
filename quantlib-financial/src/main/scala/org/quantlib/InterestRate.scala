@@ -17,7 +17,7 @@ final case class InterestRate[D: DateOps](rate: Double,
 
   import InterestRate._
 
-  if (comp == Compounded || comp == SimpleThenCompounded)
+  if (comp == Compounded || comp == SimpleThenCompounded || comp == CompoundedThenSimple)
     require(freq != Once && freq != NoFrequency, "frequency not allowed for this interest rate")
 
   def discountFactor(time: Double): Double = 1.0 / compoundFactor(time)
@@ -31,7 +31,7 @@ final case class InterestRate[D: DateOps](rate: Double,
   def compoundFactor(time: Double): Double = {
     require(time >= 0.0, "negative time not allowed")
 
-    def simple = 1.0 * rate * time
+    def simple = 1.0 + rate * time
 
     def compounded = Math.pow(1.0 + rate / freq.value, freq.value * time)
 
@@ -40,6 +40,7 @@ final case class InterestRate[D: DateOps](rate: Double,
       case Compounded => compounded
       case Continuous => Math.exp(rate * time)
       case SimpleThenCompounded => if (time <= 1.0 / freq.value) simple else compounded
+      case CompoundedThenSimple => if (time > 1.0 / freq.value) simple else compounded
     }
   }
 
@@ -62,9 +63,10 @@ final case class InterestRate[D: DateOps](rate: Double,
                      refEnd: Option[D] = None): InterestRate[D] = {
     require(date2 >= date1, s"date1($date1) later than date2($date2)")
 
-    val compound = compoundFactor(dc.yearFraction(date1, date2, refStart, refEnd))
+    val t1 = dc.yearFraction(date1, date2, refStart, refEnd)
+    val t2 = resultDc.yearFraction(date1, date2, refStart, refEnd)
 
-    impliedRate(compound, dc, comp, freq, resultDc.yearFraction(date1, date2, refStart, refEnd))
+    impliedRate(compoundFactor(t1), resultDc, comp, freq, t2)
   }
 
   override def toString: String = {
@@ -74,6 +76,7 @@ final case class InterestRate[D: DateOps](rate: Double,
       case Compounded => freq
       case Continuous => Continuous
       case SimpleThenCompounded => "Simple Compounding up to " + (12 / freq.value) + " months, then " + freq
+      case CompoundedThenSimple => "Simple Compounding up to " + (12 / freq.value) + " months, then " + freq
     }
 
     rate + " " + dc + " " + compounding + "Compounding"
@@ -90,12 +93,16 @@ object InterestRate {
                               time: Double): InterestRate[D] = {
 
     require(compound > 0.0, "positive compound factor required")
-    require(compound == 1.0 && time >= 0.0, s"non negative time ($time) required when compound is 1")
-    require(compound != 1.0 && time > 0.0, s"positive time ($time) required when compound is not 1")
+    if (compound == 1.0) {
+      require(time >=  0.0, s"non negative time ($time) required when compound is 1")
+    } else{
+      require(time > 0.0, s"positive time ($time) required")
+    }
+
 
     def simpleRate = (compound - 1.0) / time
 
-    def compoundedRate = (Math.pow(compound, 1.0 / freq.value.toDouble * time) - 1.0) * freq.value.toDouble
+    def compoundedRate = (Math.pow(compound, 1.0 / (freq.value.toDouble * time)) - 1.0) * freq.value.toDouble
 
     val rate =
       if (compound == 1.0) 0.0
@@ -104,6 +111,7 @@ object InterestRate {
         case Compounded => compoundedRate
         case Continuous => Math.log(compound) / time
         case SimpleThenCompounded => if (time <= 1.0 / freq.value.toDouble) simpleRate else compoundedRate
+        case CompoundedThenSimple => if (time > 1.0 / freq.value.toDouble) simpleRate else compoundedRate
       }
 
 
