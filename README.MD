@@ -2,9 +2,9 @@
 
 This project is trying to provide an native Scala adaptation of the popular C++ QuantLib project.
 
-While trying to maintain the same function and concept of the original project, ScalaQuantLib will try to incorporate conceptions and practices with more modern approach. Such changes will include but not limited to Pattern matching, Actor models(Akka), Immutable date/time and etc.
+While trying to maintain the same function and concept of the original project, ScalaQuantLib will try to incorporate concepts and practices with more modern approach. Such changes will include, but not limited to, Pattern matching, Actor models(Akka), Immutable date/time and etc.
 
-This project is still in early infancy and it is still a personal side project without any funding and dedication of time. There are lots of bugs, missing documents and features, even missing test cases.
+This project is still in early infancy and it is still a personal side project without any funding and dedication of time. There are lots of bugs, missing documents and features, and/or test cases.
 
 The current layout of the project is separated into sub projects with binary dependencies. Each projected is being working indecently
 
